@@ -311,7 +311,7 @@ def test_add_labels_aliases(tmpdir, docker_tasker, caplog,
     ("restricted", 'private', "private", True)
 ])
 def test_dont_overwrite_distribution_scope(tmpdir, docker_tasker, parent_scope,
-                                           docker_scope, result_scope, overwrite):
+                                           docker_scope, result_scope, dont_overwrite):
     df_content = "FROM fedora\n"
     if docker_scope:
         df_content += 'LABEL distribution-scope="{0}"'.format(docker_scope)
@@ -332,7 +332,7 @@ def test_dont_overwrite_distribution_scope(tmpdir, docker_tasker, parent_scope,
     flexmock(workflow, base_image_inspect=labels_conf_base)
     setattr(workflow.builder, 'df_path', df.dockerfile_path)
 
-    if overwrite:
+    if dont_overwrite:
         runner = PreBuildPluginsRunner(
             docker_tasker,
             workflow,
