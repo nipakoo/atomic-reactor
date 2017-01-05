@@ -296,7 +296,7 @@ def test_add_labels_aliases(tmpdir, docker_tasker, caplog,
     if expected_log:
         assert expected_log in caplog.text()
 
-@pytest.mark.parametrize('parent_scope, docker_scope, result_scope, overwrite', [
+@pytest.mark.parametrize('parent_scope, docker_scope, result_scope, dont_overwrite', [
     (None, None, "restricted", False),
     ("public", None, "restricted", False),
     ("private", None, "restricted", False),
