@@ -308,7 +308,8 @@ def test_add_labels_aliases(tmpdir, docker_tasker, caplog,
     ("private", None, "restricted", True),
     ("restricted", 'public', "public", True),
     ("restricted", 'restricted', "restricted", True),
-    ("restricted", 'private', "private", True)
+    ("restricted", 'private', "private", True),
+    ("public", 'private', "private", True)
 ])
 def test_dont_overwrite_distribution_scope(tmpdir, docker_tasker, parent_scope,
                                            docker_scope, result_scope, dont_overwrite):
