@@ -295,3 +295,75 @@ def test_add_labels_aliases(tmpdir, docker_tasker, caplog,
 
     if expected_log:
         assert expected_log in caplog.text()
+
+@pytest.mark.parametrize('parent_scope, docker_scope, result_scope, dont_overwrite', [
+    (None, None, "restricted", False),
+    ("public", None, "restricted", False),
+    ("private", None, "restricted", False),
+    ("restricted", 'public', "public", False),
+    ("restricted", 'restricted', "restricted", False),
+    ("restricted", 'private', "private", False),
+    (None, None, "restricted", True),
+    ("public", None, "restricted", True),
+    ("private", None, "restricted", True),
+    ("restricted", 'public', "public", True),
+    ("restricted", 'restricted', "restricted", True),
+    ("restricted", 'private', "private", True),
+    ("public", 'private', "private", True)
+])
+def test_dont_overwrite_distribution_scope(tmpdir, docker_tasker, parent_scope,
+                                           docker_scope, result_scope, dont_overwrite):
+    df_content = "FROM fedora\n"
+    if docker_scope:
+        df_content += 'LABEL distribution-scope="{0}"'.format(docker_scope)
+
+    if parent_scope:
+        labels_conf_base = {INSPECT_CONFIG: {"Labels": {"distribution-scope": parent_scope}}}
+    else:
+        labels_conf_base = {INSPECT_CONFIG: {"Labels": {}}}
+
+    df = df_parser(str(tmpdir))
+    df.content = df_content
+
+    if MOCK:
+        mock_docker()
+
+    workflow = DockerBuildWorkflow(MOCK_SOURCE, 'test-image')
+    setattr(workflow, 'builder', X)
+    flexmock(workflow, base_image_inspect=labels_conf_base)
+    setattr(workflow.builder, 'df_path', df.dockerfile_path)
+
+    if dont_overwrite:
+        runner = PreBuildPluginsRunner(
+            docker_tasker,
+            workflow,
+            [{
+                'name': AddLabelsPlugin.key,
+                'args': {
+                    'labels': {"distribution-scope": "restricted"},
+                    'auto_labels': [],
+                    'dont_overwrite_if_in_dockerfile': "distribution-scope",
+                    'aliases': {},
+                }
+
+            }]
+        )
+    else:
+        runner = PreBuildPluginsRunner(
+            docker_tasker,
+            workflow,
+            [{
+                'name': AddLabelsPlugin.key,
+                'args': {
+                    'labels': {"distribution-scope": "restricted"},
+                    'auto_labels': [],
+                    'aliases': {},
+                }
+
+            }]
+        )
+
+    runner.run()
+
+    result = df.labels.get("distribution-scope")
+    assert result == result_scope
