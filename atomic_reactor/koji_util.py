@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def koji_login(session,
                proxyuser=None,
-               ssl_certs_dir=None,
+               ssl_certs_dir='/root/.koji',
                krb_principal=None,
                krb_keytab=None):
     """

@@ -91,7 +91,7 @@ class KojiPromotePlugin(ExitPlugin):
 
     def __init__(self, tasker, workflow, kojihub, url,
                  verify_ssl=True, use_auth=True,
-                 koji_ssl_certs=None, koji_proxy_user=None,
+                 koji_ssl_certs='/root/.koji', koji_proxy_user=None,
                  koji_principal=None, koji_keytab=None,
                  metadata_only=False, blocksize=None,
                  target=None, poll_interval=5):
@@ -618,6 +618,8 @@ class KojiPromotePlugin(ExitPlugin):
         buildroot = self.get_buildroot(build_id=self.build_id)
         output_files = self.get_output(buildroot['id'])
 
+        build['release'] = build['release'] + 'container'
+
         koji_metadata = {
             'metadata_version': metadata_version,
             'build': build,
@@ -694,7 +696,6 @@ class KojiPromotePlugin(ExitPlugin):
             return
 
         koji_metadata, output_files = self.get_metadata()
-
         try:
             session = self.login()
             server_dir = self.get_upload_server_dir()

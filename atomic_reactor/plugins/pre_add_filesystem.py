@@ -77,7 +77,7 @@ class AddFilesystemPlugin(PreBuildPlugin):
         ''')
 
     def __init__(self, tasker, workflow, koji_hub,
-                 koji_proxyuser=None, koji_ssl_certs_dir=None,
+                 koji_proxyuser=None, koji_ssl_certs_dir='/root/.koji',
                  koji_krb_principal=None, koji_krb_keytab=None,
                  from_task_id=None, poll_interval=5,
                  blocksize=DEFAULT_DOWNLOAD_BLOCK_SIZE,
