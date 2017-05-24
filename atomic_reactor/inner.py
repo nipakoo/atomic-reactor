@@ -28,7 +28,7 @@ from atomic_reactor.plugin import (
     PrePublishPluginsRunner,
 )
 from atomic_reactor.source import get_source_instance_for
-from atomic_reactor.util import ImageName
+from atomic_reactor.util import ImageName, base_image_is_scratch
 from atomic_reactor.build import BuildResult
 
 
@@ -329,6 +329,9 @@ class DockerBuildWorkflow(object):
     def base_image_inspect(self):
         if self._base_image_inspect is None:
             try:
+                if base_image_is_scratch(self.builder.base_image.to_str()):
+                    logger.debug("do not inspect scratch image")
+                    return {}
                 self._base_image_inspect = self.builder.tasker.inspect_image(
                     self.builder.base_image)
             except docker.errors.NotFound:

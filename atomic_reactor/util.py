@@ -885,3 +885,7 @@ def read_yaml(yaml_file_path, schema):
         raise
 
     return data
+
+
+def base_image_is_scratch(base_image_name):
+    return re.match('^scratch(:latest)?$', base_image_name)
